@@ -1,1 +1,3 @@
+The arima model produced a forecast that wavered slightly and then immediately flattened out. 
+
 The forecast being flat is just saying that, according to the model, in the future the slight upward trend seen in the data will continue to change at a stable pace. This means that in the future, once the leafblower situation settles down, the amount of noise complaints will return to a steady increase.
