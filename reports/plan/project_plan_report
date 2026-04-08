@@ -1,0 +1,44 @@
+Data 
+My main dataset is the “Noise Complaints” dataset from dataMontgomery. This dataset provides surface level information on noise complaints submitted from 1989 to 2026, is updated daily, and currently contains just over 11,000 rows and six variables. I might be combining it with a construction dataset, also from dataMontgomery, titled “New Home Builders,” containing 15 columns and 2,475 rows. This dataset is to address the patterns from before 2025. When I did EDA on the whole dataset, residential construction was the cause of most of the complaints. It cannot be used to address the 2025 spike, that was due to leaf blowers, and no dataset can help me there. There is one leaf collection dataset, but it’s so awkward I don’t want to use it.
+I am also looking at the “Department of Alcohol Beverage Services (ABS) Licensee Data” dataset from dataMontgomery, but I will definitely not be combining it with my main dataset. This dataset updates monthly, has just over 1000 rows, and 10 columns. The dataset lists all of the companies that are able to sell alcohol in Montgomery County. I want to use this data because I personally hear a lot of loud noise by my house but I’ve never been irritated enough to report it—the same applies to almost everyone I know. So, I theorized that higher irritation levels would lead to more reports, especially since the data collection method is voluntary. So, I went with the first thing I could think of that leads to high irritation: alcohol. I originally wanted to do mental health, but couldn’t find a dataset that I could use to create a map. On top of that, MoCo has put blame on an increase in private parties that produce a lot of noise, and I assume those parties have alcohol.
+
+Research goals and questions + tools, methods, and resources: 
+Main goal: Create a data journalism piece that analyzes the patterns in my data, discusses potential causes and effects, have fun doing it, and give advice to those sensitive to noise.
+
+Questions:
+
+1. What caused the dip in 1994 and the dip in 2002?
+Method: Look for trends in my other datasets and do background research into those years.
+Tools: R (ggplot, tidyverse), online resources such as RaptorSearch.
+2. What caused the slight rise that started in 2018?
+Method: I’m fairly certain I have an answer for this, so as of right now I’m going to do research into affirming that.
+Tools: Online resources such as RaptorSearch.
+3. In July of 2025 gas powered leaf blowers were banned. However, noise issues continued. Which zip code, and within that zipcode, which street, was most affected? Why might this be?
+Method: Create a bar graph to see how it’s distributed, and then create a map to see the data, then take the zip code with the highest count (from bar graph) and get the counts for the addresses in that zipcode.
+Tools: R (ggplot, tidyverse), Tableau
+4. I would like to break down 2025 into months and see if there is a difference in the amount of complaints before and after the ban (July).
+Method: Create a line graph to visualize the amount of complaints over the months
+Tools: R (Lubridate)
+5. I would like to see if places with a high amount of institutions that sell alcohol are also places with a high amount of complaints.
+Method: Map out the locations of the institutions and compare it to the noise complaints mapped out.
+Tools: R (ggplot, tidyverse), maybe Tableau
+6. Are certain areas hot spots for certain types of complaints? For example, do some cities complain a lot more about amplification equipment than others.
+Method: Create a map, preferably a heat map or a map that has varying sizes of points.
+Tools: Tableau, maybe R (leaflet or plotly)
+7. What are the possible impacts of increased irritation caused by noise?
+Method: background research
+Tools: Raptorsearch, Britannica, NIH articles, etc.
+8. Even though the year just started, what are likely going to be the main sources of noise in 2026? If my data is too not stationary, I will just look at how 2026 is doing so far.
+Method: Use an ARIMA model or just create a simple graph to see what's happening in 2026.
+Tools: R (ggplot, tidyverse, forecast, tseries)
+
+Model: Potentially ARIMA, not yet sure if my data fits this model choice. Will likely have to do a different type of model.
+Risks and mitigations:
+ 	Because the noise complaints are submitted by either calling a number or a web form, there is bias from the voluntary collection. The dataset likely excludes people who don’t have access to the internet, don’t trust calling the number or filling out the form, don’t know the form or number exist, etc. I am unsure how to handle this statistically, but as I answer my questions I will not claim anything that generalizes to the greater population. 
+On a less serious note, my results could end up being obvious, and thus uninteresting to my audience. Honestly, I don't know how I would handle this. I find most things interesting, I won’t really be able to tell if it’s boring. When I get my presentation together, I’ll ask my classmates or my friends outside my cohort if it’s boring, and try to embellish my presentation. 
+
+Milestones: 
+Week 1(starting from week 9): Create, at minimum, an outline to answer the questions that are straight forward (questions 1, 2, 3, 4, 5, 6, 9). Check that ARIMA is possible with my data.
+Week 2: Start with ARIMA. If it ends up not being possible, look at alternative models or shift the question.+ Finalize answers to the previously worked on questions
+Week 3: Complete model or, if not possible, finalize a way to approach answering some of my questions that might not have a concrete answer (questions 1 and 2).
+Week 4: Review the model(maybe), gather results in one place, make it presentable.
