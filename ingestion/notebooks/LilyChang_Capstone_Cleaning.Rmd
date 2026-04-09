@@ -1,0 +1,232 @@
+---
+title: "LilyChang_Capstone_Cleaning"
+output: html_notebook
+---
+
+
+```{r}
+library(tidyverse)
+```
+
+
+```{r}
+dataset <- read_csv("Noise_Complaints.csv")
+construction <- read_csv("New_Home_Builders_20260310.csv")
+alcohol <- read_csv("Department_of_Alcohol_Beverage_Services_(ABS)_Licensee_Data_20260324.csv")
+
+```
+
+### Cleaning main dataset (Noise Complaints)
+
+```{r}
+names(dataset) <- gsub(" ","_", names(dataset))
+names(dataset) <- gsub("-","_", names(dataset))
+names(dataset) <- tolower(names(dataset))
+
+names(dataset)[names(dataset) == "address_zip_code"] <- "zip_code"
+head(dataset)
+```
+
+
+```{r}
+leaf_blower <- c("Leaf Blower Sales","Noise Industrial/commercial   Leaf Blower Noise","Leaf Blower Use   Petro Fueled")
+residential_mechanical <- c("Residential   Mechanical")
+residential_motor_vehicle <- c("Residential   Motor Vehicle Noise")
+residential_construction <- c("Industrial/commercial  construction/repair/demolit", "Residential   Construction/repair/demolition")
+industrial_or_comm_equip <- c("Industrial/commercial   Refuse Noise Collection", "Industrial/commercial   Equipment Noise", "Industrial/commercial   heat Pump/ac Noise")
+residentual_multi_tennant_dwelling <- c("Residential Muti Tenant Dwelling")
+other_causes <- c("Waiver Request", "Project   Community Noise Survey", "Information Request")
+residentual_house_yard <- c("Residential House/yard")
+amp_equiptment <- c("Residential   El  Amplification Equip", "Industrial/commercial   Electrical Amp Equip")
+
+dataset_mutated <- dataset |>
+  mutate(case_sub_type = case_when(
+    case_sub_type %in% leaf_blower ~ "leaf_blower",
+    case_sub_type %in% residential_mechanical ~ "residential_mechanical",
+    case_sub_type %in% residential_motor_vehicle ~ "residential_motor_vehicle",
+    case_sub_type %in% residential_construction ~ "residential_construction",
+    case_sub_type %in% industrial_or_comm_equip ~ "industrial_or_comm_equip",
+    case_sub_type %in% residentual_multi_tennant_dwelling ~ "residentual_multi_tennant_dwelling",
+    case_sub_type %in% other_causes ~ "other_causes",
+    case_sub_type %in% residentual_house_yard ~ "residentual_house_yard",
+    case_sub_type %in% amp_equiptment ~ "amp_equiptment"
+
+ ))
+```
+
+
+I replaced the NAs within the zipcode column with "missing" to prevent adding more bias by removing them.
+
+Got the code from: https://www.statology.org/replace-na-with-string-in-r/#:~:text=by%20Zach%20Bobbitt%20Published%20on%20June%202%2C,%25%3E%25%20replace_na(list(x%20=%20'missing'%2C%20y%20=%20'none')) 
+and https://stackoverflow.com/questions/45101670/how-do-i-replace-na-values-with-specific-values-in-an-r 
+
+```{r}
+dataset_mutated$zip_code[is.na(dataset_mutated$zip_code)] <- "missing"
+```
+
+Code for mutating a months variable was obtained from here: https://stackoverflow.com/questions/71413141/set-2-digits-in-month 
+I am doing this so I can see how the data acts within the year/s and not just from year to year.
+
+```{r}
+dataset_clean <- dataset_mutated |>
+  mutate(
+    parsed_date = mdy(case_open_date),                
+    months = format(parsed_date, "%m")    
+  )
+dataset_clean
+```
+
+#### Starting the Construction Dataset cleaning
+
+```{r}
+names(construction) <- gsub(" ","_", names(construction))
+names(construction) <- gsub("-","_", names(construction))
+names(construction) <- tolower(names(construction))
+head(construction)
+```
+
+
+Taking out some columns that are NA heavy and irrelevant, though I don't really have to worry much about the NAs since I'm only going to use this dataset for mapping, and the location variables have few NAs.
+
+I also created year variables, one from the issue date of the licence, one from the expiration date of the license. 
+
+```{r}
+construction_filtered <- construction |>
+  select(!c("address_line_2", "additional_applicant", "trade_name", "business_name"))
+
+construction_issue <- construction_filtered |>
+  mutate(year_of_issue = year(mdy(issue_date)))
+
+construction_clean <- construction_issue |>
+  mutate(year_of_exp = year(mdy(expiration_date)))
+
+construction_clean$location[is.na(construction_clean$location)] <- "missing"
+
+construction_clean$city <- tolower(construction_clean$city)
+
+construction_clean
+```
+
+#### Starting the Alcohol Lisenceing Dataset cleaning
+
+I will likely use this dataset minimally. I wanted it for multiple reasons, but the main one being that a major issue for more recent years was amp_equipment, or amplification equipment. this aligns with MoCo's actions against private, for-profit parties causing a lot of noise issues. Obviously, there isn't a dataset on parties, and any about rented houses (that could've been used for the parties) weren't very good. So, I went to what is often associated with parties and loud individuals: alcohol. 
+
+Short article on the parties: https://www.nbcwashington.com/news/local/noisy-for-profit-parties-at-private-homes-face-higher-fines-in-montgomery-co/3957191/ 
+
+```{r}
+names(alcohol) <- gsub(" ","_", names(alcohol))
+names(alcohol) <- gsub("-","_", names(alcohol))
+names(alcohol) <- tolower(names(alcohol))
+head(alcohol)
+```
+
+Dealing with the NAs in the location variable in this dataset the same way I did previously.
+```{r}
+alcohol$location[is.na(alcohol$location)] <- "missing"
+
+```
+
+
+I noticed the city variable needed some work, so I used mutate and case_when to clean it up.
+
+```{r}
+unique(alcohol$city)
+```
+
+
+```{r}
+silver_spring <- c("SILVER SPRING", "SILVER SRING", "SILVER SRPING")
+bethesda <- c("BETHEDA", "BETHESDA")
+ashton <- c("ASHTON")
+north_bethesda <- c("NORTH BETHESDA")
+boyds <- c("BOYDS")
+beltsville <- c("BELTSVILLE")
+glen_echo <- c("GLEN ECHO")
+brookeville <- c("BROOKEVILLE", "BROOKVILLE")
+wheaton <- c("WHEATON", "WEATON")
+poolesville <- c("POOLESVILLE")
+olney <- c("OLNEY")
+gaithersburg <- c("GAITHERSURG", "GAITHERSBURG", "Gaithersburg")
+unknown <- c("MD")
+chevy_chase <- c("CHEVY CHASE")
+potomac <- c("POTOMAC")
+cabin_john <- c("CABIN JOHN")
+dickerson <- c("DICKERSON")
+laytonsville <- c("LAYTONSVILLE")
+mount_airy <- c("MOUNT AIRY")
+germantown <- c("GERMANTOWN")
+damascus <- c("DAMASCUS")
+kensington <- c("KENSINGTON")
+derwood <- c("DERWOOD")
+montgomery_village <- c("MONTGOMERY VILLAGE")
+beallsville <- c("BEALLSVILLE")
+colesville <- c("COLESVILLE")
+sandy_spring <- c("SANDY SPRING")
+rockville<- c("ROCKVILLE")
+takoma_park <- c("TAKOMA PARK")
+burtonsville <- c("BURTONSVILLE")
+garrett_park <- c("GARRETT PARK")
+clarksburg <- c("CLARKSBURG")
+spencerville <- c("SPENCERVILLE")
+
+
+
+
+alcohol_clean <- alcohol |>
+  mutate(city = case_when(
+    city %in% silver_spring ~ "silver_spring",
+    city %in% bethesda ~ "bethesda",
+    city %in% ashton ~ "ashton",
+    city %in% north_bethesda ~ "north_bethesda",
+    city %in% boyds ~ "boyds",
+    city %in% beltsville ~ "beltsville",
+    city %in% glen_echo ~ "glen_echo",
+    city %in% brookeville ~ "brookeville",
+    city %in% wheaton ~ "wheaton",
+    city %in% poolesville ~ "poolesville",
+    city %in% olney ~ "olney",
+    city %in% gaithersburg ~ "gaithersburg",
+    city %in% unknown ~ "unknown",
+    city %in% chevy_chase ~ "chevy_chase",
+    city %in% potomac ~ "potomac",
+    city %in% cabin_john ~ "cabin_john",
+    city %in% dickerson ~ "dickerson",
+    city %in% laytonsville ~ "laytonsville",
+    city %in% mount_airy ~ "mount_airy",
+    city %in% germantown ~ "germantown",
+    city %in% damascus ~ "damascus",
+    city %in% kensington ~ "kensington",
+    city %in% derwood ~ "derwood",
+    city %in% montgomery_village ~ "montgomery_village",
+    city %in% beallsville ~ "beallsville",
+    city %in% colesville ~ "colesville",
+    city %in% sandy_spring ~ "sandy_spring",
+ city %in% rockville ~ "rockville",
+     city %in% takoma_park ~ "takoma_park",
+     city %in% burtonsville ~ "burtonsville",
+    city %in% garrett_park ~ "garrett_park",
+    city %in% clarksburg ~ "clarksburg",
+    city %in% spencerville ~ "spencerville"
+
+ ))
+
+```
+
+checking that it looks how I want it to.
+```{r}
+head(alcohol_clean)
+```
+
+
+```{r}
+write_csv(construction_clean, "D:\\new_homes_cleaned.csv")
+```
+
+
+
+
+
+
+
+
+
