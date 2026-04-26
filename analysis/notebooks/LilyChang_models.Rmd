@@ -1,0 +1,184 @@
+---
+title: "LilyChang_models"
+output: html_notebook
+---
+
+loading the libraries and the dataset
+```{r}
+library(tidyverse)
+library(forecast)
+library(tseries)
+```
+
+
+```{r}
+
+uncleaned_dataset <- read_csv("Noise_Complaints.csv")
+dataset <- read_csv("noise_complaints_cleaned.csv")
+construction <- read_csv("New_Home_Builders_20260310.csv")
+alcohol <- read_csv("Department_of_Alcohol_Beverage_Services_(ABS)_Licensee_Data_20260324.csv")
+
+```
+
+yoinked the code for fixing the zipcode variable from here: https://stackoverflow.com/questions/1435435/javascript-regular-expression-to-match-5-or-9-digit-zipcode 
+
+```{r}
+names(uncleaned_dataset) <- gsub(" ","_", names(uncleaned_dataset))
+names(uncleaned_dataset) <- gsub("-","_", names(uncleaned_dataset))
+names(uncleaned_dataset) <- tolower(names(uncleaned_dataset))
+
+names(uncleaned_dataset)[names(uncleaned_dataset) == "address_zip_code"] <- "zip_code"
+
+dataset$zip_code <- ifelse(
+  grepl("^\\d{5}$", dataset$zip_code),
+  dataset$zip_code,
+  "missing"
+)
+```
+
+
+```{r}
+leaf_blower <- c("Leaf Blower Sales","Noise Industrial/commercial   Leaf Blower Noise")
+leaf_blower_gas <- c("Leaf Blower Use   Petro Fueled")
+residential_mechanical <- c("Residential   Mechanical")
+residential_motor_vehicle <- c("Residential   Motor Vehicle Noise")
+residential_construction <- c("Industrial/commercial  construction/repair/demolit", "Residential   Construction/repair/demolition")
+industrial_or_comm_equip <- c("Industrial/commercial   Refuse Noise Collection", "Industrial/commercial   Equipment Noise", "Industrial/commercial   heat Pump/ac Noise")
+residentual_multi_tennant_dwelling <- c("Residential Muti Tenant Dwelling")
+other_causes <- c("Waiver Request", "Project   Community Noise Survey", "Information Request")
+residentual_house_yard <- c("Residential House/yard")
+amp_equiptment <- c("Residential   El  Amplification Equip", "Industrial/commercial   Electrical Amp Equip")
+
+dataset_mutated_gas <- uncleaned_dataset |>
+  mutate(case_sub_type = case_when(
+    case_sub_type %in% leaf_blower ~ "leaf_blower",
+    case_sub_type %in% leaf_blower_gas ~ "leaf_blower_gas",
+    case_sub_type %in% residential_mechanical ~ "residential_mechanical",
+    case_sub_type %in% residential_motor_vehicle ~ "residential_motor_vehicle",
+    case_sub_type %in% residential_construction ~ "residential_construction",
+    case_sub_type %in% industrial_or_comm_equip ~ "industrial_or_comm_equip",
+    case_sub_type %in% residentual_multi_tennant_dwelling ~ "residentual_multi_tennant_dwelling",
+    case_sub_type %in% other_causes ~ "other_causes",
+    case_sub_type %in% residentual_house_yard ~ "residentual_house_yard",
+    case_sub_type %in% amp_equiptment ~ "amp_equiptment"
+
+ ))
+```
+
+Enter this in the console to get the time series used in for the ARIMA model: 
+
+yearts=ts(only_coyear$n,start=min(only_coyear$case_year), frequency = 1)
+
+
+Filtering to exclude the parts of my data that disrupt the potential pattern as well as creating a dataframe that only has the year and counts.
+The main disruptions that are excluded are likely due to a lack of state government funding, which likely caused sharp dips in the data due to under staffing.
+
+```{r}
+only_coyear <- dataset |>
+  filter(!case_year %in% c("2026", "1994", "2002", "1989", "1990", "1991", "1992", "1993", "1995", "1996", "1997", "1998", "1999", "2000", "2001", "2025")) |>
+  count(case_year) 
+only_coyear
+```
+
+
+```{r}
+plot(yearts)
+```
+Testing for stationary data. It is not stationary.
+```{r}
+adf.test(yearts)
+```
+
+#### Using diff() on my time series since I got above a 0.05 in the adf test.
+```{r}
+stationaryts <- diff(yearts, differences = 1)
+```
+
+
+```{r}
+adf.test(stationaryts)
+
+```
+Logging and diffing it to see if that works better.
+```{r}
+loggedts <- log(yearts)
+stationaryts2 <- diff(loggedts, differences = 1)
+```
+
+After both logging the time series and using diff(), the pvalue is below 0.05 and the plot looks pretty good. A little worried I might have over fit the data.
+
+```{r}
+adf.test(stationaryts2)
+```
+
+```{r}
+model = auto.arima(stationaryts2,ic="aic",trace=TRUE)
+
+```
+
+```{r}
+myforecast = forecast(model, level = c(95), h=10)
+```
+
+```{r}
+plot(myforecast)
+```
+
+```{r}
+acf(stationaryts2)
+pacf(stationaryts2)
+```
+
+# Negative Binomial Regression model
+
+```{r}
+library(MASS)
+
+df_counts <- dataset_mutated_gas |>
+  group_by(zip_code, case_year, case_sub_type) |> 
+  filter(case_year != "2026") |>
+  summarise(count = n(), .groups = "drop")
+
+options(scipen = 999)
+```
+
+This model addresses how complaint counts behave when considering both the year and the case_sub_type variables but the year is not centered.
+
+Additionally, the init.theta is below the 10-20 range, it's still considered over dispersed. So, this model was the correct choice over Poisson.
+```{r}
+#model <- glm.nb(
+#  count ~ case_year + factor(zip_code),
+#  data = df_counts
+#)
+#model
+
+model1 <- glm.nb(
+  count ~ case_year + factor(zip_code) + factor(case_sub_type),
+  data = df_counts
+)
+model1
+```
+
+
+This model considers the year, case_sub_type, and zip_code variables, but the year is centered.
+
+When entered into a calculator for e^0.034537, the year coefficient becomes 1.035140328 Then convert to a percent (1.035140328 x 100), 103.5140328 percent. 100-103.5140328 = a 3.5140328 percent increase early?
+
+```{r}
+df_counts$year_centered <- df_counts$case_year - mean(df_counts$case_year)
+
+model_exp <- glm.nb(count ~ year_centered * factor(case_sub_type) + factor(zip_code), data = df_counts)
+model_exp
+```
+Main Takeaways:
+-noise complaints are increasing slightly over time, not dramatically (excluding 2026, as it's incomplete).
+- Certain zip codes experience more complaints than others.
+- Complaints differ across the different complaint types.
+
+References
+
+https://youtu.be/lUbtXI3XdPE?si=YmB2RdJ25i7422p8 
+
+
+
+https://dplyr.tidyverse.org/reference/summarise.html?utm_source=chatgpt.com 
