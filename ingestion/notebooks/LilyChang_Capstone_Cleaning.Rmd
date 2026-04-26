@@ -24,12 +24,19 @@ names(dataset) <- gsub("-","_", names(dataset))
 names(dataset) <- tolower(names(dataset))
 
 names(dataset)[names(dataset) == "address_zip_code"] <- "zip_code"
+
+dataset$zip_code <- ifelse(
+  grepl("^\\d{5}$", dataset$zip_code),
+  dataset$zip_code,
+  "missing"
+)
 head(dataset)
 ```
 
 
 ```{r}
-leaf_blower <- c("Leaf Blower Sales","Noise Industrial/commercial   Leaf Blower Noise","Leaf Blower Use   Petro Fueled")
+leaf_blower <- c("Leaf Blower Sales","Noise Industrial/commercial   Leaf Blower Noise")
+leaf_blower_gas <- c("Leaf Blower Use   Petro Fueled")
 residential_mechanical <- c("Residential   Mechanical")
 residential_motor_vehicle <- c("Residential   Motor Vehicle Noise")
 residential_construction <- c("Industrial/commercial  construction/repair/demolit", "Residential   Construction/repair/demolition")
@@ -42,6 +49,7 @@ amp_equiptment <- c("Residential   El  Amplification Equip", "Industrial/commerc
 dataset_mutated <- dataset |>
   mutate(case_sub_type = case_when(
     case_sub_type %in% leaf_blower ~ "leaf_blower",
+    case_sub_type %in% leaf_blower_gas ~ "leaf_blower_gas",
     case_sub_type %in% residential_mechanical ~ "residential_mechanical",
     case_sub_type %in% residential_motor_vehicle ~ "residential_motor_vehicle",
     case_sub_type %in% residential_construction ~ "residential_construction",
@@ -216,12 +224,6 @@ checking that it looks how I want it to.
 ```{r}
 head(alcohol_clean)
 ```
-
-
-```{r}
-write_csv(construction_clean, "D:\\new_homes_cleaned.csv")
-```
-
 
 
 
