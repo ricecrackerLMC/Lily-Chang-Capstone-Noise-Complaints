@@ -8,8 +8,9 @@ library(tidyverse)
 library(ggplot2)
 library(ggthemes)
 library(zipcodeR)
-library(leaflet)
 library(sf)
+library(RColorBrewer)
+
 ```
 
 
@@ -126,4 +127,23 @@ most_concentrated <- alcohol |>
 
 most_concentrated 
 ```
+
+
+Looking at how different complaint causes behave over time.
+
+```{r}
+count_by_category_line <- dataset |>
+  count(case_sub_type, case_year) |>
+  filter(!case_sub_type %in% c("other_causes"))
+count_by_category_line
+
+ggplot(count_by_category_line, aes(x = case_year, y = n, color = case_sub_type, group = case_sub_type)) +
+  geom_line(linewidth = 0.9) + 
+scale_color_brewer(palette = "Set1") # + theme_dark()
+#Set3, Paired
+```
+
+
+
+
 
