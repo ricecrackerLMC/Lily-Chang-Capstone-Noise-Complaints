@@ -31,7 +31,7 @@ bargraph1 <- ggplot(dataset, aes(case_sub_type, fill = case_sub_type)) + geom_ba
 theme(
     axis.text.x = element_blank(),
     axis.ticks.x = element_blank()
-    )
+    ) + scale_fill_brewer(palette = "Set1")
 bargraph1
 ```
 
@@ -44,8 +44,7 @@ ggplot(count_by_category, aes(x = case_year, y = n, group = 1)) +
   labs(
     y = "Count",
     x = "Case Year",
-    title = "Noise Complaints 1989-2026") +
-  theme_stata()
+    title = "Noise Complaints 1989-2026") 
 ```
 
 ```{r}
@@ -76,7 +75,7 @@ theme(
   labs(
     x = "Sub Type of the Complaint",
     title = "Counts for the case sub types from 2023 to 2025"
-  )
+  ) + scale_fill_brewer(palette = "Set1")
 filteredbar25
 ```
 
@@ -89,7 +88,8 @@ filter(case_year %in% c("2017","2018","2019", "2020", "2021"))
 
 ```{r}
 filteredbar18 <- ggplot(filteredgraph18, aes(case_sub_type, fill=case_sub_type)) +
-  geom_bar() +
+  geom_bar() + 
+scale_fill_brewer(palette = "Set1") +
   facet_wrap(~case_year) +
 theme(
     axis.text.x = element_blank(),
@@ -98,7 +98,8 @@ theme(
   labs(
     x = "Sub Type of the Complaint",
     title = "Counts for the case sub types from 2016 to 2020"
-  )
+  ) 
+
 filteredbar18
 ```
 
@@ -109,7 +110,6 @@ count_by_categoryC <- construction |>
   count(year_of_issue)
 
 linegraph_con <- ggplot(count_by_categoryC, aes(year_of_issue, n)) + geom_line() +
-  theme_stata() +
   labs(
     title = "Licenses to build new homes from 1990 to 2026",
     x = "Year the license was issued",
@@ -139,7 +139,12 @@ count_by_category_line
 
 ggplot(count_by_category_line, aes(x = case_year, y = n, color = case_sub_type, group = case_sub_type)) +
   geom_line(linewidth = 0.9) + 
-scale_color_brewer(palette = "Set1") # + theme_dark()
+scale_color_brewer(palette = "Set1") +
+  labs(
+    title = "Complaint Causes Over Time",
+    x = "Year, 1989-2026",
+    y = "Complaint Count"
+  )# + theme_dark() 
 #Set3, Paired
 ```
 
