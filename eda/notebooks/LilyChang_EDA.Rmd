@@ -148,6 +148,118 @@ scale_color_brewer(palette = "Set1") +
 #Set3, Paired
 ```
 
+### Creating my first choropleth for the noise complaints dataset
+#### This is the choropleth section >:D
+
+To complete the choropleths, I'm following the instructions from here: https://data.montgomerycountymd.gov/Technology/Geographic-data-Zip-Codes-Shape-File-/vz4m-d8ee 
+
+geojson file obtained from dataMontgomery: https://data.montgomerycountymd.gov/Technology/Geographic-data-Zip-Codes-Shape-File-/vz4m-d8ee 
+
+```{r}
+moco_spatial <- read_sf("ZIPCODES_20260330.geojson")
+ggplot(moco_spatial) +
+  geom_sf(fill = "white", color = "black", linewidth = 0.3) +
+  theme_void()
+```
+```{r}
+count_zip <- dataset |>
+  select(zip_code) |>
+  count(zip_code) |>
+  arrange(desc(n))
+count_zip
+```
+
+```{r}
+my_sf_merged <- moco_spatial %>%
+  left_join(count_zip, by = c("zipcode" = "zip_code"))
+```
+
+
+```{r}
+ggplot(my_sf_merged) +
+  geom_sf(aes(fill = n)) +
+  theme_void() +
+  labs(
+    title = "Zip Codes Colored by Noise Complaint Counts"
+  ) +
+  geom_sf_text(aes(label = zipcode), size = 3, check_overlap = TRUE, color = "white") +
+  theme_dark()
+```
+
+### Making choropleths with my construction dataset
+
+
+Making sure zip code is a character. 
+```{r}
+construction$zip_code <- as.character(construction$zip_code)
+class(construction$zip_code)
+
+```
+Notably, 20814 (Bethesda) is the top zip code for both noise complaints and new homes construction. 
+
+```{r}
+ count_zipC <- construction |>
+  select(zip_code) |>
+  count(zip_code) |>
+  arrange(desc(n))
+count_zipC
+```
+
+```{r}
+my_sf_mergedC <- moco_spatial %>%
+  left_join(count_zipC, by = c("zipcode" = "zip_code"))
+
+```
+
+
+The construction and noise complaint choropleths overlap heavily. 
+
+```{r}
+ggplot(my_sf_mergedC) +
+  geom_sf(aes(fill = n)) +
+  theme_void() +
+  labs(
+    title = "Zip Codes Colored by New Home Construction"
+  ) +
+  geom_sf_text(aes(label = zipcode), size = 3, check_overlap = TRUE, color = "white") +
+  theme_dark() 
+```
+
+
+Repeating the process and creating a choropleth using the same steps as before for the alcohol dataset.
+
+Making sure zip code is a character. 
+```{r}
+alcohol$zip <- as.character(alcohol$zip)
+class(alcohol$zip)
+
+```
+Once again, 20814 is near the top. 20910 (silver spring) is also notable zip code in both this dataset and noise complaints.
+
+```{r}
+count_zipA <- alcohol |>
+  select(zip) |>
+  count(zip) |>
+  arrange(desc(n))
+count_zipA
+```
+
+```{r}
+my_sf_mergedA <- moco_spatial %>%
+  left_join(count_zipA, by = c("zipcode" = "zip"))
+
+```
+
+```{r}
+ggplot(my_sf_mergedA) +
+  geom_sf(aes(fill = n)) +
+  theme_void() +
+  labs(
+    title = "Zip Codes Colored by Locations that Sell Alcohol"
+  ) +
+  geom_sf_text(aes(label = zipcode), size = 3, check_overlap = TRUE, color = "white") +
+  theme_dark() 
+```
 
 
 
