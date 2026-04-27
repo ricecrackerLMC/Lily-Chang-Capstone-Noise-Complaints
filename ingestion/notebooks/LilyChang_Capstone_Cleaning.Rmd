@@ -62,6 +62,35 @@ dataset_mutated <- dataset |>
  ))
 ```
 
+```{r}
+#creating mutating a dataset that has leaf blowers that are gas powered separate from normal leaf blowers. This way, I can look at gas powered leaf blowers separately if I want to. 
+leaf_blower <- c("Leaf Blower Sales","Noise Industrial/commercial   Leaf Blower Noise")
+leaf_blower_gas <- c("Leaf Blower Use   Petro Fueled")
+residential_mechanical <- c("Residential   Mechanical")
+residential_motor_vehicle <- c("Residential   Motor Vehicle Noise")
+residential_construction <- c("Industrial/commercial  construction/repair/demolit", "Residential   Construction/repair/demolition")
+industrial_or_comm_equip <- c("Industrial/commercial   Refuse Noise Collection", "Industrial/commercial   Equipment Noise", "Industrial/commercial   heat Pump/ac Noise")
+residentual_multi_tennant_dwelling <- c("Residential Muti Tenant Dwelling")
+other_causes <- c("Waiver Request", "Project   Community Noise Survey", "Information Request")
+residentual_house_yard <- c("Residential House/yard")
+amp_equiptment <- c("Residential   El  Amplification Equip", "Industrial/commercial   Electrical Amp Equip")
+
+dataset_mutated_gas <- dataset |>
+  mutate(case_sub_type = case_when(
+    case_sub_type %in% leaf_blower ~ "leaf_blower",
+    case_sub_type %in% leaf_blower_gas ~ "leaf_blower_gas",
+    case_sub_type %in% residential_mechanical ~ "residential_mechanical",
+    case_sub_type %in% residential_motor_vehicle ~ "residential_motor_vehicle",
+    case_sub_type %in% residential_construction ~ "residential_construction",
+    case_sub_type %in% industrial_or_comm_equip ~ "industrial_or_comm_equip",
+    case_sub_type %in% residentual_multi_tennant_dwelling ~ "residentual_multi_tennant_dwelling",
+    case_sub_type %in% other_causes ~ "other_causes",
+    case_sub_type %in% residentual_house_yard ~ "residentual_house_yard",
+    case_sub_type %in% amp_equiptment ~ "amp_equiptment"
+
+ ))
+```
+
 
 I replaced the NAs within the zipcode column with "missing" to prevent adding more bias by removing them.
 
@@ -70,6 +99,8 @@ and https://stackoverflow.com/questions/45101670/how-do-i-replace-na-values-with
 
 ```{r}
 dataset_mutated$zip_code[is.na(dataset_mutated$zip_code)] <- "missing"
+dataset_mutated_gas$zip_code[is.na(dataset_mutated$zip_code)] <- "missing"
+
 ```
 
 Code for mutating a months variable was obtained from here: https://stackoverflow.com/questions/71413141/set-2-digits-in-month 
@@ -82,6 +113,13 @@ dataset_clean <- dataset_mutated |>
     months = format(parsed_date, "%m")    
   )
 dataset_clean
+
+dataset_clean_gas <- dataset_mutated_gas |>
+  mutate(
+    parsed_date = mdy(case_open_date),                
+    months = format(parsed_date, "%m")    
+  )
+dataset_clean_gas
 ```
 
 #### Starting the Construction Dataset cleaning
