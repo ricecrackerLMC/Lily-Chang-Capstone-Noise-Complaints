@@ -22,6 +22,6 @@ This repository's layout will generally follow this structure
 
 - data/: Raw datasets
 - ingestion/: My cleaning process 
-- eda/: Surface level data analysis, this sets up what I plan to do or not do based on what I do or do not find.
-- analysis/: My graphing, and potentially modeling
+- eda/: Data analysis, mostly using graphs.
+- analysis/: My process leading up to my modeling.
 - report/: The clean, easy to digest report of my findings.
