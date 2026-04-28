@@ -1,0 +1,47 @@
+---
+title: "Analysis_notebook"
+author: "Lily C"
+date: "2026-04-28"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(forecast)
+library(tseries)
+```
+
+```{r}
+dataset <- read_csv("noise_complaints_cleaned.csv")
+construction <- read_csv("New_Home_Builders_20260310.csv")
+alcohol <- read_csv("Department_of_Alcohol_Beverage_Services_(ABS)_Licensee_Data_20260324.csv")
+
+```
+
+## ARIMA cleaning 
+
+Filtering to exclude the parts of my data that disrupt the potential pattern as well as creating a dataframe that only has the year and counts.
+The main disruptions that are excluded are likely due to a lack of state government funding, which likely caused sharp dips in the data due to under staffing. 2026 is incomplete, so I will exclude it.
+```{r}
+only_coyear <- dataset |>
+  filter(!case_year %in% c("2026", "1994", "2002", "1989", "1990", "1991", "1992", "1993", "1995", "1996", "1997", "1998", "1999", "2000", "2001", "2025")) |>
+  count(case_year) 
+only_coyear
+```
+
+## Negative Binomial Regression cleaning
+
+Creating a counts dataframe.
+
+'scipen' was used to keep things readable for me.
+```{r}
+df_counts <- dataset |>
+  group_by(zip_code, case_year, case_sub_type) |> 
+  filter(case_year != "2026") |>
+  summarise(count = n(), .groups = "drop")
+
+options(scipen = 999)
+```
+
+
+
