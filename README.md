@@ -3,7 +3,7 @@
 *This capstone project is aimed towards those who are noise sensitive, so that they know where to avoid living and why.*
 
 ### Tools and Methods
-I am Primarily using R and Tableau to perform my analysis.
+I am Primarily using R to perform my analysis.
 
 The R packages used consist of the following:
 - tidyverse
