@@ -1,0 +1,5 @@
+Cleaning Explaination
+
+My cleaning process includes loading in the data, renaming the variables, handling NAs, and mutating variables. The data was useable before, but the graphs were difficult to read potentially misleading due to mistakes in the variable entries. Cleaning made variable names easier to code with, cleaned up variables that had mistakes, and allowed for a more detailed exploration by creating separate month and year variables. 
+
+
