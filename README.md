@@ -12,10 +12,10 @@ The R packages used consist of the following:
 - forecast
 - ggthemes
 - sf
+- MASS
 
 
-To perform my analysis, I will compare graphs to find patterns in my data, which I will then use to give a recommendation on where to live for those who are noise sensitive. 
-Potentially, I will also create a forecasting model.
+To perform my analysis, I will compare graphs to find patterns in my data, which I will then use to give a recommendation on where to live for those who are noise sensitive. Additionally, I will use ARIMA forecasting and a Negative Binomial Regression model to forecast future patterns and ensure my enterpretations are accurate. 
 
 ### Structure 
 This repository's layout will generally follow this structure
