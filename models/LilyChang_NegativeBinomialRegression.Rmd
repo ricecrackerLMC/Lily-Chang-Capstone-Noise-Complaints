@@ -1,0 +1,62 @@
+---
+title: "LilyChang_NegativeBinomialRegression"
+author: "Lily C"
+date: "2026-04-27"
+output: html_document
+---
+
+loading the libraries and the dataset
+```{r}
+library(tidyverse)
+library(forecast)
+library(tseries)
+```
+
+```{r}
+dataset <- read_csv("noise_complaints_cleaned.csv")
+construction <- read_csv("New_Home_Builders_20260310.csv")
+alcohol <- read_csv("Department_of_Alcohol_Beverage_Services_(ABS)_Licensee_Data_20260324.csv")
+
+```
+
+# Negative Binomial Regression model
+
+```{r}
+library(MASS)
+
+df_counts <- dataset |>
+  group_by(zip_code, case_year, case_sub_type) |> 
+  filter(case_year != "2026") |>
+  summarise(count = n(), .groups = "drop")
+
+options(scipen = 999)
+```
+
+This model addresses how complaint counts behave when considering both the year and the case_sub_type variables but the year is not centered.
+
+Additionally, the init.theta is below the 10-20 range, it's considered over dispersed. So, this model was the correct choice over Poisson.
+```{r}
+
+model <- glm.nb(
+  count ~ case_year + factor(zip_code) + factor(case_sub_type),
+  data = df_counts
+)
+model
+```
+
+This model considers the year, case_sub_type, and zip_code variables, but the year is centered.
+
+When entered into a calculator for e^0.0283741 , the year coefficient becomes 1.028780479 Then convert to a percent (1.028780479 x 100), 102.8780479 percent. 100-102.8780479 = a 2.878047922 percent increase early.
+
+```{r}
+df_counts$year_centered <- df_counts$case_year - mean(df_counts$case_year)
+
+model_cen <- glm.nb(count ~ year_centered * factor(case_sub_type) + factor(zip_code), data = df_counts)
+model_cen
+```
+
+Main Takeaways:
+-noise complaints are increasing slightly over time, not dramatically (excluding 2026, as it's incomplete).
+- Certain zip codes experience more complaints than others.
+- Complaints differ across the different complaint types.
+
