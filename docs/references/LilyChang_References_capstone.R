@@ -32,8 +32,7 @@ https://www.youtube.com/watch?v=VPhyVSJMbpA
   
 https://data.montgomerycountymd.gov/Technology/Geographic-data-Zip-Codes-Shape-File-/vz4m-d8ee
 
-https://data.montgomerycountymd.gov/Technology/Geographic-data-Zip-Codes-Shape-File-/vz4m-d8ee
-
+https://r-graph-gallery.com/327-chloropleth-map-from-geojson-with-ggplot2.html
 
 
 
