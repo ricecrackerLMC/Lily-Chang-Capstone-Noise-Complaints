@@ -12,8 +12,8 @@ library(tseries)
 
 ```{r}
 dataset <- read_csv("noise_complaints_cleaned.csv")
-construction <- read_csv("New_Home_Builders_20260310.csv")
-alcohol <- read_csv("Department_of_Alcohol_Beverage_Services_(ABS)_Licensee_Data_20260324.csv")
+construction <- read_csv("new_homes_cleaned.csv")
+alcohol <- read_csv("alcohol_licensing_cleaned.csv")
 
 ```
 # ARIMA
