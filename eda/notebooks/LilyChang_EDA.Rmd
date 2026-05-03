@@ -180,7 +180,8 @@ ggplot(my_sf_merged) +
   geom_sf(aes(fill = n)) +
   theme_void() +
   labs(
-    title = "Zip Codes Colored by Noise Complaint Counts"
+    title = "Zip Codes Colored by Noise Complaint Counts",
+fill = "Complaint Counts"
   ) +
   geom_sf_text(aes(label = zipcode), size = 3, check_overlap = TRUE, color = "white") +
   theme_dark()
@@ -219,7 +220,8 @@ ggplot(my_sf_mergedC) +
   geom_sf(aes(fill = n)) +
   theme_void() +
   labs(
-    title = "Zip Codes Colored by New Home Construction"
+    title = "Zip Codes Colored by New Home Construction",
+fill = "Construction License Counts"
   ) +
   geom_sf_text(aes(label = zipcode), size = 3, check_overlap = TRUE, color = "white") +
   theme_dark() 
@@ -255,7 +257,8 @@ ggplot(my_sf_mergedA) +
   geom_sf(aes(fill = n)) +
   theme_void() +
   labs(
-    title = "Zip Codes Colored by Locations that Sell Alcohol"
+    title = "Zip Codes Colored by Locations that Sell Alcohol",
+fill = "Licensed Company Counts"
   ) +
   geom_sf_text(aes(label = zipcode), size = 3, check_overlap = TRUE, color = "white") +
   theme_dark() 
