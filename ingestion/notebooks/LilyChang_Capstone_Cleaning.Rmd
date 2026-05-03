@@ -263,6 +263,19 @@ checking that it looks how I want it to.
 head(alcohol_clean)
 ```
 
+#### Exporting
+
+```{r}
+write_csv(dataset_clean, "D:\\noise_complaints_cleaned.csv")
+```
+
+```{r}
+write_csv(construction_clean, "D:\\new_homes_cleaned.csv")
+```
+
+```{r}
+write_csv(alcohol_clean, "D:\\alcohol_licensing_cleaned.csv")
+```
 
 
 
